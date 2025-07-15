@@ -163,3 +163,31 @@ if st.session_state.show_nutrisi:
 
         df_baru.to_csv("kalori_tracker.csv", index=False)
         st.success("✅ Data berhasil disimpan ke `kalori_tracker.csv`")
+
+# ===================== RINGKASAN / RIWAYAT =====================
+st.markdown("---")
+st.header("📈 Riwayat Kalori Harian")
+
+lihat_riwayat = st.checkbox("👀 Tampilkan Riwayat Konsumsi Harian")
+
+if lihat_riwayat:
+    try:
+        df_riwayat = pd.read_csv("kalori_tracker.csv")
+        df_riwayat['tanggal'] = pd.to_datetime(df_riwayat['tanggal'])
+
+        st.dataframe(df_riwayat)
+
+        st.subheader("📊 Grafik Total Kalori per Hari")
+        fig3, ax3 = plt.subplots()
+        ax3.plot(df_riwayat['tanggal'], df_riwayat['total_kalori'], marker='o', color='darkorange')
+        ax3.set_xlabel("Tanggal")
+        ax3.set_ylabel("Total Kalori (kkal)")
+        ax3.set_title("Perbandingan Kalori Harian")
+        plt.xticks(rotation=45)
+        st.pyplot(fig3)
+
+        rata2 = df_riwayat['total_kalori'].mean()
+        st.success(f"🔎 Rata-rata kalori harian kamu: **{rata2:.2f} kkal**")
+
+    except FileNotFoundError:
+        st.warning("❌ Belum ada data riwayat konsumsi disimpan.")
