@@ -37,17 +37,16 @@ if st.button("Lanjut ➡️"):
 
     st.subheader(f"Total Kebutuhan Kalori Harian: **{kalori:.0f} kkal**")
 
-    # HITUNG NUTRISI (DIDEFINISI DULU INI BAGIAN PENTING)
+    # HITUNG MAKRO NUTRISI
     karbo = kalori * 0.5 / 4
     lemak = kalori * 0.3 / 9
     protein = kalori * 0.2 / 4
 
-    st.markdown("### Rincian Kebutuhan Nutrisi Harian:")
+    st.markdown("### 🍱 Rincian Makronutrisi:")
     st.write(f"🍚 Karbohidrat: **{karbo:.1f} g**")
     st.write(f"🥩 Protein: **{protein:.1f} g**")
     st.write(f"🧈 Lemak: **{lemak:.1f} g**")
 
-    # PIE CHART
     nutrisi_df = pd.DataFrame({
         'Nutrisi': ['Karbohidrat', 'Lemak', 'Protein'],
         'Gram': [karbo, lemak, protein]
@@ -58,4 +57,40 @@ if st.button("Lanjut ➡️"):
     ax.axis('equal')
     st.pyplot(fig)
 
-    st.info("📌 Note: Distribusi AKG menggunakan standar umum 50% Karbo, 30% Lemak, dan 20% Protein.")
+    st.info("📌 AKG Makro: 50% Karbo, 30% Lemak, 20% Protein dari total kalori harian.")
+
+    # ------------------ FIBER, GULA, SODIUM ------------------
+
+    st.markdown("### 🧂 Gula, Serat, dan Sodium")
+
+    # Nilai umum AKG
+    gula = 50   # gram
+    serat = 30  # gram
+    sodium = 2000  # mg
+
+    st.write(f"🍬 Gula maksimum per hari: **{gula} g**")
+    st.write(f"🌾 Serat yang disarankan: **{serat} g**")
+    st.write(f"🧂 Sodium maksimum: **{sodium} mg**")
+
+    mikro_df = pd.DataFrame({
+        'Nutrisi': ['Gula', 'Serat', 'Sodium'],
+        'Nilai': [gula, serat, sodium / 1000]  # Konversi sodium ke gram
+    })
+
+    fig2, ax2 = plt.subplots()
+    ax2.pie(mikro_df['Nilai'], labels=mikro_df['Nutrisi'], autopct='%1.1f%%', startangle=90)
+    ax2.axis('equal')
+    st.pyplot(fig2)
+
+    st.info("📌 Catatan: Gula & Sodium adalah batas maksimum. Serat adalah target minimal.")
+
+    # ------------------ SARAN MAKANAN ------------------
+
+    st.markdown("### 🥗 Saran Makanan")
+
+    st.write("**Karbohidrat:** nasi merah, roti gandum, oat, ubi")
+    st.write("**Protein:** dada ayam, tempe, tahu, telur, ikan")
+    st.write("**Lemak Sehat:** alpukat, kacang-kacangan, minyak zaitun")
+    st.write("**Serat:** sayur hijau, buah apel/pear, brokoli")
+    st.write("**Hindari konsumsi gula dan sodium berlebih dari makanan instan dan minuman manis.**")
+
