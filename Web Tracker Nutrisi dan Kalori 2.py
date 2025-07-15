@@ -163,3 +163,57 @@ if st.session_state.show_nutrisi:
 
         df_baru.to_csv("kalori_tracker.csv", index=False)
         st.success("✅ Data berhasil disimpan ke `kalori_tracker.csv`")
+# ===================== RINGKASAN / RIWAYAT =====================
+st.markdown("---")
+st.header("📈 Riwayat Kalori Harian")
+
+lihat_riwayat = st.checkbox("👀 Tampilkan Riwayat Konsumsi Harian")
+
+if lihat_riwayat:
+    try:
+        df_riwayat = pd.read_csv("kalori_tracker.csv")
+        df_riwayat['tanggal'] = pd.to_datetime(df_riwayat['tanggal'])
+
+        st.dataframe(df_riwayat)
+
+        st.subheader("📊 Grafik Total Kalori per Hari")
+        fig3, ax3 = plt.subplots()
+        ax3.plot(df_riwayat['tanggal'], df_riwayat['total_kalori'], marker='o', color='darkorange')
+        ax3.set_xlabel("Tanggal")
+        ax3.set_ylabel("Total Kalori (kkal)")
+        ax3.set_title("Perbandingan Kalori Harian")
+        plt.xticks(rotation=45)
+        st.pyplot(fig3)
+
+        rata2 = df_riwayat['total_kalori'].mean()
+        st.success(f"🔎 Rata-rata kalori harian kamu: **{rata2:.2f} kkal**")
+
+    except FileNotFoundError:
+        st.warning("❌ Belum ada data riwayat konsumsi disimpan.")
+# ---------- ANALISIS KONSUMSI HARI INI ----------
+st.markdown("## 📋 Analisis Konsumsi Harian")
+
+# Analisis kelebihan/defisit kalori
+if kalori > 0:
+    if total_kalori > kalori + 200:
+        st.error("⚠️ Konsumsi kamu hari ini jauh di atas kebutuhan. Hati-hati, bisa berisiko kelebihan energi!")
+    elif total_kalori < kalori - 200:
+        st.warning("🔻 Konsumsi kamu hari ini di bawah kebutuhan. Bisa bikin tubuh lemas atau kekurangan energi.")
+    else:
+        st.success("✅ Konsumsi kalori kamu hari ini seimbang dengan kebutuhan tubuhmu!")
+
+# ---------- TOP 3 MAKANAN PENYUMBANG KALORI ----------
+makanan_semua = sarapan + siang + malam + snack
+
+kalori_makanan = {}
+for makanan in makanan_semua:
+    if makanan in kalori_makanan:
+        kalori_makanan[makanan] += daftar_makanan[makanan]
+    else:
+        kalori_makanan[makanan] = daftar_makanan[makanan]
+
+top3 = sorted(kalori_makanan.items(), key=lambda x: x[1], reverse=True)[:3]
+
+st.markdown("### 🍟 Top 3 Makanan Tertinggi Kalori Hari Ini:")
+for i, (makanan, kal) in enumerate(top3, start=1):
+    st.write(f"{i}. {makanan} - **{kal} kkal**")
