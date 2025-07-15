@@ -2,6 +2,15 @@ import streamlit as st
 import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
+# ------------------ BACA DATABASE MAKANAN ------------------
+
+try:
+    df_makanan = pd.read_csv("makanan_database.csv")
+except FileNotFoundError:
+    df_makanan = pd.DataFrame(columns=["nama", "kalori"])
+
+# Ubah ke dictionary
+daftar_makanan = dict(zip(df_makanan["nama"], df_makanan["kalori"]))
 
 # CUMA DIPANGGIL SEKALI
 st.set_page_config(page_title="Web Tracker Nutrisi dan Kalori", layout="centered")
@@ -104,27 +113,34 @@ if st.session_state.show_nutrisi:
 
     tanggal = st.date_input("Tanggal", value=datetime.date.today())
 
-    daftar_makanan = {
-        "Nasi Putih (100g)": 175,
-        "Tempe Goreng": 120,
-        "Telur Rebus": 70,
-        "Ayam Panggang": 200,
-        "Susu Full Cream (250ml)": 150,
-        "Roti Tawar": 80,
-        "Pisang": 90,
-        "Sayur Bayam": 30,
-        "Gorengan": 180,
-        "Air Putih": 0,
-    }
+   # ------------------ TAMBAH MAKANAN BARU ------------------
 
-    st.markdown("### 🍳 Sarapan")
-    sarapan = st.multiselect("Pilih makanan:", list(daftar_makanan.keys()), key="sarapan")
-    st.markdown("### 🍛 Makan Siang")
-    siang = st.multiselect("Pilih makanan:", list(daftar_makanan.keys()), key="siang")
-    st.markdown("### 🍲 Makan Malam")
-    malam = st.multiselect("Pilih makanan:", list(daftar_makanan.keys()), key="malam")
-    st.markdown("### 🍩 Snack")
-    snack = st.multiselect("Pilih makanan:", list(daftar_makanan.keys()), key="snack")
+st.markdown("## 🍽️ Tambah Makanan Baru")
+
+with st.form("form_makanan"):
+    nama_makanan_baru = st.text_input("Nama Makanan")
+    kalori_baru = st.number_input("Kalori (kkal) per porsi", min_value=0)
+    tombol_submit = st.form_submit_button("Tambah ke Database")
+
+if tombol_submit and nama_makanan_baru and kalori_baru:
+    new_data = pd.DataFrame({"nama": [nama_makanan_baru], "kalori": [kalori_baru]})
+    df_makanan = pd.concat([df_makanan, new_data], ignore_index=True)
+    df_makanan.to_csv("makanan_database.csv", index=False)
+    st.success(f"✅ {nama_makanan_baru} berhasil ditambahkan ke database!")
+    st.experimental_rerun()
+
+    # ---------- FORM INPUT MAKANAN ----------
+st.markdown("### 🍳 Sarapan")
+sarapan = st.multiselect("Pilih makanan saat sarapan:", list(daftar_makanan.keys()), key="sarapan")
+
+st.markdown("### 🍛 Makan Siang")
+siang = st.multiselect("Pilih makanan saat makan siang:", list(daftar_makanan.keys()), key="siang")
+
+st.markdown("### 🍲 Makan Malam")
+malam = st.multiselect("Pilih makanan saat makan malam:", list(daftar_makanan.keys()), key="malam")
+
+st.markdown("### 🍩 Snack / Cemilan")
+snack = st.multiselect("Pilih makanan saat snack:", list(daftar_makanan.keys()), key="snack")
 
     def hitung_kalori(pilihan):
         return sum(daftar_makanan[m] for m in pilihan)
