@@ -3,19 +3,18 @@ import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
 
-# CUMA DIPANGGIL SEKALI
 st.set_page_config(page_title="Web Tracker Nutrisi dan Kalori", layout="centered")
 
-# INISIALISASI STATE
+# ===================== STATE =====================
 if "show_nutrisi" not in st.session_state:
     st.session_state.show_nutrisi = False
 
+# ===================== JUDUL UTAMA =====================
 st.title("🍽️ Tracker Nutrisi dan Kalori")
 st.write("Web Tracker Kebutuhan Nutrisi dan Kalori Harianmu")
 
-# ------------------------ INPUT DATA DIRI ------------------------
+# ===================== INPUT DATA DIRI =====================
 st.header("📝 Input Data Diri")
-
 nama = st.text_input("Nama")
 gender = st.radio("Gender", ["Perempuan", "Laki-laki"])
 umur = st.number_input("Umur (tahun)", min_value=0)
@@ -26,7 +25,7 @@ aktivitas = st.selectbox("Aktivitas Harian", ["Ringan (kerja duduk)", "Sedang (j
 if st.button("Lanjut ➡️"):
     st.session_state.show_nutrisi = True
 
-# ------------------------ TAMPILKAN HASIL ------------------------
+# ===================== HASIL PERHITUNGAN =====================
 if st.session_state.show_nutrisi:
     st.header("📊 Kebutuhan Kalori & Nutrisi Harian")
 
@@ -37,12 +36,8 @@ if st.session_state.show_nutrisi:
         bmr = 88.36 + (13.4 * berat) + (4.8 * tinggi) - (5.7 * umur)
 
     # Tambah faktor aktivitas
-    if aktivitas == "Ringan (kerja duduk)":
-        kalori = bmr * 1.2
-    elif aktivitas == "Sedang (jalan kaki, berdiri)":
-        kalori = bmr * 1.55
-    else:
-        kalori = bmr * 1.9
+    faktor = {"Ringan (kerja duduk)": 1.2, "Sedang (jalan kaki, berdiri)": 1.55, "Berat (fisik/olahraga)": 1.9}
+    kalori = bmr * faktor[aktivitas]
 
     st.subheader(f"Total Kebutuhan Kalori Harian: **{kalori:.0f} kkal**")
 
@@ -68,12 +63,9 @@ if st.session_state.show_nutrisi:
 
     st.info("📌 AKG Makro: 50% Karbo, 30% Lemak, 20% Protein dari total kalori harian.")
 
-    # ------------------ GULA, SERAT, SODIUM ------------------
+    # GULA, SERAT, SODIUM
     st.markdown("### 🧂 Gula, Serat, dan Sodium")
-
-    gula = 50
-    serat = 30
-    sodium = 2000
+    gula, serat, sodium = 50, 30, 2000  # mg
 
     st.write(f"🍬 Gula maksimum per hari: **{gula} g**")
     st.write(f"🌾 Serat yang disarankan: **{serat} g**")
@@ -91,7 +83,7 @@ if st.session_state.show_nutrisi:
 
     st.info("📌 Catatan: Gula & Sodium = batas maksimum. Serat = target minimal.")
 
-    # ------------------ SARAN MAKANAN ------------------
+    # SARAN MAKANAN
     st.markdown("### 🥗 Saran Makanan")
     st.write("**Karbohidrat:** nasi merah, roti gandum, oat, ubi")
     st.write("**Protein:** dada ayam, tempe, tahu, telur, ikan")
@@ -99,22 +91,14 @@ if st.session_state.show_nutrisi:
     st.write("**Serat:** sayur hijau, buah apel/pear, brokoli")
     st.write("⚠️ Hindari konsumsi gula dan sodium berlebih dari makanan instan dan minuman manis.")
 
-    # ------------------ INPUT KONSUMSI HARI INI ------------------
+    # ===================== INPUT KONSUMSI =====================
     st.markdown("## 🧾 Input Konsumsi Harian")
 
     tanggal = st.date_input("Tanggal", value=datetime.date.today())
-
     daftar_makanan = {
-        "Nasi Putih (100g)": 175,
-        "Tempe Goreng": 120,
-        "Telur Rebus": 70,
-        "Ayam Panggang": 200,
-        "Susu Full Cream (250ml)": 150,
-        "Roti Tawar": 80,
-        "Pisang": 90,
-        "Sayur Bayam": 30,
-        "Gorengan": 180,
-        "Air Putih": 0,
+        "Nasi Putih (100g)": 175, "Tempe Goreng": 120, "Telur Rebus": 70,
+        "Ayam Panggang": 200, "Susu Full Cream (250ml)": 150, "Roti Tawar": 80,
+        "Pisang": 90, "Sayur Bayam": 30, "Gorengan": 180, "Air Putih": 0,
     }
 
     st.markdown("### 🍳 Sarapan")
@@ -133,7 +117,6 @@ if st.session_state.show_nutrisi:
     kal_siang = hitung_kalori(siang)
     kal_malam = hitung_kalori(malam)
     kal_snack = hitung_kalori(snack)
-
     total_kalori = kal_sarapan + kal_siang + kal_malam + kal_snack
 
     st.markdown("### 🔥 Total Kalori Hari Ini:")
@@ -163,70 +146,56 @@ if st.session_state.show_nutrisi:
 
         df_baru.to_csv("kalori_tracker.csv", index=False)
         st.success("✅ Data berhasil disimpan ke `kalori_tracker.csv`")
-# ===================== RINGKASAN / RIWAYAT =====================
-st.markdown("---")
-st.header("📈 Riwayat Kalori Harian")
 
-lihat_riwayat = st.checkbox("👀 Tampilkan Riwayat Konsumsi Harian")
+    # ===================== RIWAYAT & ANALISIS =====================
+    st.markdown("---")
+    st.header("📈 Riwayat Kalori Harian")
 
-if lihat_riwayat:
-    try:
-        df_riwayat = pd.read_csv("kalori_tracker.csv")
-        df_riwayat['tanggal'] = pd.to_datetime(df_riwayat['tanggal'])
+    lihat_riwayat = st.checkbox("👀 Tampilkan Riwayat Konsumsi Harian")
 
-        st.dataframe(df_riwayat)
+    if lihat_riwayat:
+        try:
+            df_riwayat = pd.read_csv("kalori_tracker.csv")
+            df_riwayat['tanggal'] = pd.to_datetime(df_riwayat['tanggal'])
 
-        st.subheader("📊 Grafik Total Kalori per Hari")
-        fig3, ax3 = plt.subplots()
-        
-if lihat_riwayat:
-    try:
-        df_riwayat = pd.read_csv("kalori_tracker.csv")
-        df_riwayat['tanggal'] = pd.to_datetime(df_riwayat['tanggal'])
+            st.dataframe(df_riwayat)
 
-        st.dataframe(df_riwayat)
+            st.subheader("📊 Grafik Total Kalori per Hari")
+            df_filtered = df_riwayat.sort_values('tanggal', ascending=False).head(7).sort_values('tanggal')
 
-        st.subheader("📊 Grafik Total Kalori per Hari")
-        df_filtered = df_riwayat.sort_values('tanggal', ascending=False).head(7).sort_values('tanggal')
+            fig3, ax3 = plt.subplots()
+            ax3.plot(df_filtered['tanggal'], df_filtered['total_kalori'], marker='o', color='darkorange')
+            ax3.set_xlabel("Tanggal")
+            ax3.set_ylabel("Total Kalori (kkal)")
+            ax3.set_title("Perbandingan Kalori Harian")
+            plt.xticks(rotation=45)
+            st.pyplot(fig3)
 
-        fig3, ax3 = plt.subplots()
-        ax3.plot(df_filtered['tanggal'], df_filtered['total_kalori'], marker='o', color='darkorange')
-        ax3.set_xlabel("Tanggal")
-        ax3.set_ylabel("Total Kalori (kkal)")
-        ax3.set_title("Perbandingan Kalori Harian")
-        plt.xticks(rotation=45)
-        st.pyplot(fig3)
+            rata2 = df_riwayat['total_kalori'].mean()
+            st.success(f"🔎 Rata-rata kalori harian kamu: **{rata2:.2f} kkal**")
 
-        rata2 = df_riwayat['total_kalori'].mean()
-        st.success(f"🔎 Rata-rata kalori harian kamu: **{rata2:.2f} kkal**")
+        except FileNotFoundError:
+            st.warning("❌ Belum ada data riwayat konsumsi disimpan.")
 
-    except FileNotFoundError:
-        st.warning("❌ Belum ada data riwayat konsumsi disimpan.")
+    # ===================== ANALISIS KONSUMSI =====================
+    st.markdown("## 📋 Analisis Konsumsi Harian")
 
-# ---------- ANALISIS KONSUMSI HARI INI ----------
-st.markdown("## 📋 Analisis Konsumsi Harian")
+    if kalori > 0:
+        if total_kalori > kalori + 200:
+            st.error("⚠️ Konsumsi kamu hari ini jauh di atas kebutuhan. Hati-hati, bisa kelebihan energi!")
+        elif total_kalori < kalori - 200:
+            st.warning("🔻 Konsumsi kamu hari ini di bawah kebutuhan. Bisa bikin tubuh lemas.")
+        else:
+            st.success("✅ Konsumsi kalori kamu hari ini seimbang dengan kebutuhan tubuhmu!")
 
-# Analisis kelebihan/defisit kalori
-if kalori > 0:
-    if total_kalori > kalori + 200:
-        st.error("⚠️ Konsumsi kamu hari ini jauh di atas kebutuhan. Hati-hati, bisa berisiko kelebihan energi!")
-    elif total_kalori < kalori - 200:
-        st.warning("🔻 Konsumsi kamu hari ini di bawah kebutuhan. Bisa bikin tubuh lemas atau kekurangan energi.")
-    else:
-        st.success("✅ Konsumsi kalori kamu hari ini seimbang dengan kebutuhan tubuhmu!")
+    # ===================== TOP 3 MAKANAN =====================
+    semua = sarapan + siang + malam + snack
+    kalori_makanan = {}
+    for makanan in semua:
+        kalori_makanan[makanan] = kalori_makanan.get(makanan, 0) + daftar_makanan[makanan]
 
-# ---------- TOP 3 MAKANAN PENYUMBANG KALORI ----------
-makanan_semua = sarapan + siang + malam + snack
+    top3 = sorted(kalori_makanan.items(), key=lambda x: x[1], reverse=True)[:3]
 
-kalori_makanan = {}
-for makanan in makanan_semua:
-    if makanan in kalori_makanan:
-        kalori_makanan[makanan] += daftar_makanan[makanan]
-    else:
-        kalori_makanan[makanan] = daftar_makanan[makanan]
-
-top3 = sorted(kalori_makanan.items(), key=lambda x: x[1], reverse=True)[:3]
-
-st.markdown("### 🍟 Top 3 Makanan Tertinggi Kalori Hari Ini:")
-for i, (makanan, kal) in enumerate(top3, start=1):
-    st.write(f"{i}. {makanan} - **{kal} kkal**")
+    st.markdown("### 🍟 Top 3 Makanan Tertinggi Kalori Hari Ini:")
+    for i, (makanan, kal) in enumerate(top3, start=1):
+        st.write(f"{i}. {makanan} - **{kal} kkal**")
