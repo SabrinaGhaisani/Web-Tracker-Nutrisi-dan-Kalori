@@ -179,22 +179,30 @@ if lihat_riwayat:
         st.subheader("📊 Grafik Total Kalori per Hari")
         fig3, ax3 = plt.subplots()
         
-# Ambil 7 hari terakhir aja, kalau datanya banyak
-df_filtered = df_riwayat.sort_values('tanggal', ascending=False).head(7).sort_values('tanggal')
+if lihat_riwayat:
+    try:
+        df_riwayat = pd.read_csv("kalori_tracker.csv")
+        df_riwayat['tanggal'] = pd.to_datetime(df_riwayat['tanggal'])
 
-fig3, ax3 = plt.subplots()
-ax3.plot(df_filtered['tanggal'], df_filtered['total_kalori'], marker='o', color='darkorange')
-ax3.set_xlabel("Tanggal")
-ax3.set_ylabel("Total Kalori (kkal)")
-ax3.set_title("Perbandingan Kalori Harian")
-plt.xticks(rotation=45)
-st.pyplot(fig3)
+        st.dataframe(df_riwayat)
+
+        st.subheader("📊 Grafik Total Kalori per Hari")
+        df_filtered = df_riwayat.sort_values('tanggal', ascending=False).head(7).sort_values('tanggal')
+
+        fig3, ax3 = plt.subplots()
+        ax3.plot(df_filtered['tanggal'], df_filtered['total_kalori'], marker='o', color='darkorange')
+        ax3.set_xlabel("Tanggal")
+        ax3.set_ylabel("Total Kalori (kkal)")
+        ax3.set_title("Perbandingan Kalori Harian")
+        plt.xticks(rotation=45)
+        st.pyplot(fig3)
 
         rata2 = df_riwayat['total_kalori'].mean()
         st.success(f"🔎 Rata-rata kalori harian kamu: **{rata2:.2f} kkal**")
 
     except FileNotFoundError:
         st.warning("❌ Belum ada data riwayat konsumsi disimpan.")
+
 # ---------- ANALISIS KONSUMSI HARI INI ----------
 st.markdown("## 📋 Analisis Konsumsi Harian")
 
