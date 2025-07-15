@@ -51,10 +51,12 @@ if st.button("Lanjut ➡️"):
     st.write(f"🧈 Lemak: **{lemak:.1f} g**")
 
     # Pie Chart visualisasi
-    nutrisi_df = pd.DataFrame({
-        'Nutrisi': ['Karbohidrat', 'Lemak', 'Protein'],
-        'Gram': [karbo, lemak, protein]
-    })
+nutrisi_df = pd.DataFrame({
+    'Nutrisi': ['Karbohidrat', 'Lemak', 'Protein'],
+    'Gram': [karbo, lemak, protein]
+})
 
-    fig, ax = plt.subplots()
-    ax.pie(nutrisi_df['Gram'], labels=n_
+fig, ax = plt.subplots()
+ax.pie(nutrisi_df['Gram'], labels=nutrisi_df['Nutrisi'], autopct='%1.1f%%', startangle=90)
+ax.axis('equal')
+st.pyplot(fig)
