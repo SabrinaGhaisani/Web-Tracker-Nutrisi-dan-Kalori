@@ -3,73 +3,64 @@ import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="🍽️ Tracker Nutrisi & Kalori", layout="centered")
+# ========== KONFIGURASI AWAL ==========
+st.set_page_config(page_title="Web Tracker Nutrisi dan Kalori", layout="centered")
 
-# ========== STYLING UMUM ==========
-st.markdown("""
-    <style>
-    .title {
-        font-size: 40px;
-        font-weight: bold;
-        color: #ff914d;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-    .subtitle {
-        font-size: 18px;
-        color: #555;
-        text-align: center;
-        margin-bottom: 30px;
-    }
-    .card {
-        background-color: #fef6e4;
-        padding: 30px;
-        border-radius: 18px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-        margin-bottom: 30px;
-    }
-    .section-title {
-        font-size: 22px;
-        font-weight: bold;
-        color: #6a4c93;
-        margin-bottom: 20px;
-    }
-    </style>
-""", unsafe_allow_html=True)
-# ========== TITLE ==========
-st.markdown('<div class="title">🍽️ Web Tracker Nutrisi & Kalori</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Cek kebutuhan gizi & track asupan harianmu!</div>', unsafe_allow_html=True)
+if "show_nutrisi" not in st.session_state:
+    st.session_state.show_nutrisi = False
 
-# ========== FORM ==========
-st.markdown('<div class="card">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📝 Data Diri</div>', unsafe_allow_html=True)
+# ========== DATABASE GIZI ==========
+daftar_makanan = {
+    "Nasi Putih (100g)": 175,
+    "Tempe Goreng": 120,
+    "Telur Rebus": 70,
+    "Ayam Panggang": 200,
+    "Susu Full Cream (250ml)": 150,
+    "Roti Tawar": 80,
+    "Pisang": 90,
+    "Sayur Bayam": 30,
+    "Gorengan": 180,
+    "Air Putih": 0,
+}
 
-nama = st.text_input("👤 Nama")
-gender = st.radio("🚻 Gender", ["Perempuan", "Laki-laki"])
-umur = st.number_input("🎂 Umur (tahun)", min_value=0)
-tinggi = st.number_input("📏 Tinggi Badan (cm)", min_value=0.0)
-berat = st.number_input("⚖️ Berat Badan (kg)", min_value=0.0)
-aktivitas = st.selectbox("🏃 Aktivitas Harian", [
-    "Ringan (kerja duduk)",
-    "Sedang (jalan kaki, berdiri)",
-    "Berat (fisik/olahraga)"
-])
-submit = st.button("➡️ Hitung Kebutuhan")
+daftar_kandungan = {
+    "Nasi Putih (100g)": [40, 3, 1],
+    "Tempe Goreng": [10, 8, 6],
+    "Telur Rebus": [1, 6, 5],
+    "Ayam Panggang": [0, 30, 7],
+    "Susu Full Cream (250ml)": [12, 8, 8],
+    "Roti Tawar": [15, 3, 1],
+    "Pisang": [22, 1, 0],
+    "Sayur Bayam": [3, 2, 0],
+    "Gorengan": [10, 2, 15],
+    "Air Putih": [0, 0, 0],
+}
 
-st.markdown('</div>', unsafe_allow_html=True)
+# ========== INPUT DATA DIRI ==========
+st.title("🍽️ Tracker Nutrisi dan Kalori")
+st.write("Web Tracker Kebutuhan Nutrisi dan Kalori Harianmu")
 
-# ========== PERHITUNGAN ==========
-if submit:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">📊 Hasil Perhitungan</div>', unsafe_allow_html=True)
+st.header("📝 Input Data Diri")
 
-    # Hitung BMR
+nama = st.text_input("Nama")
+gender = st.radio("Gender", ["Perempuan", "Laki-laki"])
+umur = st.number_input("Umur (tahun)", min_value=0)
+tinggi = st.number_input("Tinggi Badan (cm)", min_value=0.0)
+berat = st.number_input("Berat Badan (kg)", min_value=0.0)
+aktivitas = st.selectbox("Aktivitas Harian", ["Ringan (kerja duduk)", "Sedang (jalan kaki, berdiri)", "Berat (fisik/olahraga)"])
+
+if st.button("Lanjut ➡️"):
+    st.session_state.show_nutrisi = True
+
+# ========== KALKULASI KEBUTUHAN ==========
+if st.session_state.show_nutrisi:
+    st.header("📊 Kebutuhan Kalori & Nutrisi Harian")
+
     if gender == "Perempuan":
         bmr = 447.6 + (9.25 * berat) + (3.1 * tinggi) - (4.33 * umur)
     else:
         bmr = 88.36 + (13.4 * berat) + (4.8 * tinggi) - (5.7 * umur)
 
-    # Tambah faktor aktivitas
     if aktivitas == "Ringan (kerja duduk)":
         kalori = bmr * 1.2
     elif aktivitas == "Sedang (jalan kaki, berdiri)":
@@ -77,206 +68,199 @@ if submit:
     else:
         kalori = bmr * 1.9
 
-    st.subheader(f"🔥 Total Kebutuhan Kalori: **{kalori:.0f} kkal**")
+    st.subheader(f"Total Kebutuhan Kalori Harian: **{kalori:.0f} kkal**")
 
-    # Makro Nutrisi
     karbo = kalori * 0.5 / 4
     lemak = kalori * 0.3 / 9
     protein = kalori * 0.2 / 4
 
-    st.markdown("### 🍱 Rincian Makronutrisi")
+    st.markdown("### 🍱 Rincian Makronutrisi:")
     st.write(f"🍚 Karbohidrat: **{karbo:.1f} g**")
     st.write(f"🥩 Protein: **{protein:.1f} g**")
     st.write(f"🧈 Lemak: **{lemak:.1f} g**")
 
-    # Pie Chart
     df_makro = pd.DataFrame({
-        'Makro': ['Karbohidrat', 'Lemak', 'Protein'],
-        'Gram': [karbo, lemak, protein]
+        "Nutrisi": ["Karbohidrat", "Protein", "Lemak"],
+        "Jumlah (g)": [karbo, protein, lemak]
     })
 
     fig, ax = plt.subplots()
-    colors = ['#f4a261', '#e76f51', '#2a9d8f']
-    ax.pie(df_makro['Gram'], labels=df_makro['Makro'], autopct='%1.1f%%', colors=colors, startangle=90)
-    ax.axis('equal')
+    ax.pie(df_makro["Jumlah (g)"], labels=df_makro["Nutrisi"], autopct="%1.1f%%", startangle=90)
+    ax.axis("equal")
     st.pyplot(fig)
 
-    st.info("📌 AKG: 50% Karbo, 30% Lemak, 20% Protein")
+    # ========== GULA SERAT SODIUM ==========
+    st.markdown("### 🧂 Gula, Serat, dan Sodium")
+    gula, serat, sodium = 50, 30, 2000
 
-    # Mikro Nutrisi
-    st.markdown("### 🧂 Gula, Serat, Sodium")
-    gula = 50
-    serat = 30
-    sodium = 2000
-
-    st.write(f"🍬 Gula Maks: **{gula} g**")
-    st.write(f"🌾 Serat: **{serat} g**")
-    st.write(f"🧂 Sodium Maks: **{sodium/1000:.1f} g**")
+    st.write(f"🍬 Gula maksimum per hari: **{gula} g**")
+    st.write(f"🌾 Serat yang disarankan: **{serat} g**")
+    st.write(f"🧂 Sodium maksimum: **{sodium} mg**")
 
     df_mikro = pd.DataFrame({
-        'Mikro': ['Gula', 'Serat', 'Sodium'],
-        'Jumlah': [gula, serat, sodium/1000]
+        "Nutrisi": ["Gula", "Serat", "Sodium"],
+        "Jumlah": [gula, serat, sodium/1000]
     })
 
     fig2, ax2 = plt.subplots()
-    colors2 = ['#ffcad4', '#d0f4de', '#cdb4db']
-    ax2.pie(df_mikro['Jumlah'], labels=df_mikro['Mikro'], autopct='%1.1f%%', colors=colors2, startangle=90)
-    ax2.axis('equal')
+    ax2.pie(df_mikro["Jumlah"], labels=df_mikro["Nutrisi"], autopct="%1.1f%%", startangle=90)
+    ax2.axis("equal")
     st.pyplot(fig2)
 
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.info("📌 Catatan: Gula & Sodium = batas maksimum. Serat = target minimal.")
-
-    # ------------------ SARAN MAKANAN ------------------
+    # ========== SARAN ==========
     st.markdown("### 🥗 Saran Makanan")
-    st.write("**Karbohidrat:** nasi merah, roti gandum, oat, ubi")
-    st.write("**Protein:** dada ayam, tempe, tahu, telur, ikan")
-    st.write("**Lemak Sehat:** alpukat, kacang-kacangan, minyak zaitun")
-    st.write("**Serat:** sayur hijau, buah apel/pear, brokoli")
-    st.write("⚠️ Hindari konsumsi gula dan sodium berlebih dari makanan instan dan minuman manis.")
-  
-    # ========== FORM INPUT KONSUMSI ==========
-st.markdown('<div class="card">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">🧾 Input Konsumsi Harian</div>', unsafe_allow_html=True)
+    st.write("**Karbohidrat:** nasi merah, oat, roti gandum")
+    st.write("**Protein:** tempe, dada ayam, telur, tahu")
+    st.write("**Lemak Sehat:** alpukat, minyak zaitun, kacang")
+    st.write("**Serat:** sayuran, buah tinggi serat")
+    st.warning("Hindari makanan tinggi gula & sodium ➡️ mi instan, snack kemasan")
 
-tanggal = st.date_input("📅 Tanggal", value=datetime.date.today())
+    # ========== INPUT KONSUMSI ==========
+    st.markdown("## 🧾 Input Konsumsi Harian")
+    tanggal = st.date_input("Tanggal", value=datetime.date.today())
 
-# DATABASE MAKANAN (dengan nilai kalorinya)
-daftar_makanan = {
-    "Nasi Putih (100g)": {"kalori": 175, "karbo": 40, "protein": 3, "lemak": 0.3},
-    "Tempe Goreng": {"kalori": 120, "karbo": 8, "protein": 8, "lemak": 6},
-    "Telur Rebus": {"kalori": 70, "karbo": 1, "protein": 6, "lemak": 5},
-    "Ayam Panggang": {"kalori": 200, "karbo": 0, "protein": 30, "lemak": 8},
-    "Susu Full Cream (250ml)": {"kalori": 150, "karbo": 12, "protein": 8, "lemak": 8},
-    "Roti Tawar": {"kalori": 80, "karbo": 15, "protein": 2, "lemak": 1},
-    "Pisang": {"kalori": 90, "karbo": 23, "protein": 1, "lemak": 0.3},
-    "Sayur Bayam": {"kalori": 30, "karbo": 4, "protein": 3, "lemak": 0.2},
-    "Gorengan": {"kalori": 180, "karbo": 20, "protein": 3, "lemak": 10},
-    "Air Putih": {"kalori": 0, "karbo": 0, "protein": 0, "lemak": 0},
-}
+    st.markdown("### 🍳 Sarapan")
+    sarapan = st.multiselect("Pilih:", list(daftar_makanan.keys()), key="sarapan")
+    st.markdown("### 🍛 Makan Siang")
+    siang = st.multiselect("Pilih:", list(daftar_makanan.keys()), key="siang")
+    st.markdown("### 🍲 Makan Malam")
+    malam = st.multiselect("Pilih:", list(daftar_makanan.keys()), key="malam")
+    st.markdown("### 🍩 Snack")
+    snack = st.multiselect("Pilih:", list(daftar_makanan.keys()), key="snack")
 
-st.markdown("### 🍳 Sarapan")
-sarapan = st.multiselect("Pilih makanan:", list(daftar_makanan.keys()), key="sarapan")
+    # Hitung total kalori
+    def hitung_kal(pil):
+        return sum(daftar_makanan[m] for m in pil)
 
-st.markdown("### 🍛 Makan Siang")
-siang = st.multiselect("Pilih makanan:", list(daftar_makanan.keys()), key="siang")
+    kal_sarapan = hitung_kal(sarapan)
+    kal_siang = hitung_kal(siang)
+    kal_malam = hitung_kal(malam)
+    kal_snack = hitung_kal(snack)
+    total_kalori = kal_sarapan + kal_siang + kal_malam + kal_snack
 
-st.markdown("### 🍲 Makan Malam")
-malam = st.multiselect("Pilih makanan:", list(daftar_makanan.keys()), key="malam")
+    st.subheader("🔥 Total Kalori Hari Ini")
+    st.write(f"🍳 Sarapan: {kal_sarapan} kkal")
+    st.write(f"🍛 Siang: {kal_siang} kkal")
+    st.write(f"🍲 Malam: {kal_malam} kkal")
+    st.write(f"🍩 Snack: {kal_snack} kkal")
+    st.success(f"**Total: {total_kalori} kkal**")
 
-st.markdown("### 🍩 Snack")
-snack = st.multiselect("Pilih makanan:", list(daftar_makanan.keys()), key="snack")
+    if st.button("💾 Simpan Data"):
+        df = pd.DataFrame({
+            "tanggal": [tanggal],
+            "sarapan": [", ".join(sarapan)],
+            "siang": [", ".join(siang)],
+            "malam": [", ".join(malam)],
+            "snack": [", ".join(snack)],
+            "total_kalori": [total_kalori]
+        })
 
-# ========== FUNGSI HITUNG ==========
-def hitung_total(pilihan):
-    total = {"kalori": 0, "karbo": 0, "protein": 0, "lemak": 0}
-    for mkn in pilihan:
-        data = daftar_makanan[mkn]
-        total["kalori"] += data["kalori"]
-        total["karbo"] += data["karbo"]
-        total["protein"] += data["protein"]
-        total["lemak"] += data["lemak"]
-    return total
+        try:
+            df_lama = pd.read_csv("kalori_tracker.csv")
+            df_baru = pd.concat([df_lama, df], ignore_index=True)
+        except FileNotFoundError:
+            df_baru = df
 
-total_sarapan = hitung_total(sarapan)
-total_siang = hitung_total(siang)
-total_malam = hitung_total(malam)
-total_snack = hitung_total(snack)
+        df_baru.to_csv("kalori_tracker.csv", index=False)
+        st.success("✅ Data disimpan ke `kalori_tracker.csv`")
 
-# TOTAL KESELURUHAN
-total_kal = {
-    "kalori": total_sarapan["kalori"] + total_siang["kalori"] + total_malam["kalori"] + total_snack["kalori"],
-    "karbo": total_sarapan["karbo"] + total_siang["karbo"] + total_malam["karbo"] + total_snack["karbo"],
-    "protein": total_sarapan["protein"] + total_siang["protein"] + total_malam["protein"] + total_snack["protein"],
-    "lemak": total_sarapan["lemak"] + total_siang["lemak"] + total_malam["lemak"] + total_snack["lemak"],
-}
+    # ========== RINGKASAN ==========
+    st.markdown("---")
+    st.header("📈 Riwayat Kalori Harian")
 
-st.markdown('</div>', unsafe_allow_html=True)
+    if st.checkbox("👀 Tampilkan Riwayat"):
+        try:
+            df_riwayat = pd.read_csv("kalori_tracker.csv")
+            df_riwayat['tanggal'] = pd.to_datetime(df_riwayat['tanggal'], format="%Y-%m-%d")
+            st.dataframe(df_riwayat)
 
-# ========== TAMPILKAN HASIL ==========
-st.markdown('<div class="card">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📋 Rangkuman Konsumsi Hari Ini</div>', unsafe_allow_html=True)
+            st.subheader("📊 Grafik Kalori Harian (7 hari terakhir)")
+            df_filtered = df_riwayat.sort_values('tanggal', ascending=False).head(7).sort_values('tanggal')
 
-st.write(f"🔥 **Total Kalori:** {total_kal['kalori']} kkal")
-st.write(f"🍚 Karbohidrat: {total_kal['karbo']} g")
-st.write(f"🥩 Protein: {total_kal['protein']} g")
-st.write(f"🧈 Lemak: {total_kal['lemak']} g")
+            fig3, ax3 = plt.subplots()
+            ax3.plot(df_filtered['tanggal'], df_filtered['total_kalori'], marker='o', color='darkorange')
+            ax3.set_xlabel("Tanggal")
+            ax3.set_ylabel("Total Kalori")
+            ax3.set_title("Kalori Harian")
+            plt.xticks(rotation=45)
+            st.pyplot(fig3)
 
-# Pie chart makronutrisi konsumsi
-df_konsumsi = pd.DataFrame({
-    "Makro": ["Karbohidrat", "Protein", "Lemak"],
-    "Gram": [total_kal['karbo'], total_kal['protein'], total_kal['lemak']]
-})
-fig3, ax3 = plt.subplots()
-colors3 = ['#e9c46a', '#2a9d8f', '#f4a261']
-ax3.pie(df_konsumsi["Gram"], labels=df_konsumsi["Makro"], autopct="%1.1f%%", colors=colors3, startangle=90)
-ax3.axis("equal")
-st.pyplot(fig3)
+            rata2 = df_filtered['total_kalori'].mean()
+            st.success(f"📌 Rata-rata kalori 7 hari: **{rata2:.2f} kkal**")
+        except:
+            st.warning("Belum ada data disimpan.")
 
-st.markdown('</div>', unsafe_allow_html=True)
+    # ========== ANALISIS KONSUMSI ==========
+    st.markdown("## 📋 Analisis Konsumsi Harian")
 
-# ========== SIMPAN DATA ==========
-if st.button("💾 Simpan Konsumsi Hari Ini"):
-    data = {
-        "tanggal": [tanggal],
-        "sarapan": [", ".join(sarapan)],
-        "siang": [", ".join(siang)],
-        "malam": [", ".join(malam)],
-        "snack": [", ".join(snack)],
-        "kalori": [total_kal["kalori"]],
-        "karbo": [total_kal["karbo"]],
-        "protein": [total_kal["protein"]],
-        "lemak": [total_kal["lemak"]],
-    }
+    if kalori > 0:
+        if total_kalori > kalori + 200:
+            st.error("⚠️ Kalori terlalu tinggi. Hati-hati kelebihan energi.")
+        elif total_kalori < kalori - 200:
+            st.warning("🔻 Kalori terlalu rendah. Bisa membuat lemas.")
+        else:
+            st.success("✅ Kalori seimbang dengan kebutuhan tubuh.")
 
-    df_hari = pd.DataFrame(data)
+    # Top 3
+    makanan_semua = sarapan + siang + malam + snack
+    kalori_makanan = {}
+    for m in makanan_semua:
+        kalori_makanan[m] = kalori_makanan.get(m, 0) + daftar_makanan[m]
+    top3 = sorted(kalori_makanan.items(), key=lambda x: x[1], reverse=True)[:3]
 
-    try:
-        df_lama = pd.read_csv("kalori_tracker.csv")
-        df_baru = pd.concat([df_lama, df_hari], ignore_index=True)
-    except FileNotFoundError:
-        df_baru = df_hari
+    st.markdown("### 🍟 Top 3 Penyumbang Kalori")
+    for i, (m, k) in enumerate(top3, 1):
+        st.write(f"{i}. {m} - **{k} kkal**")
 
-    df_baru.to_csv("kalori_tracker.csv", index=False)
-    st.success("✅ Data berhasil disimpan ke `kalori_tracker.csv`")
+    # ===== ANALISIS NUTRISI =====
+    st.markdown("---")
+    st.header("🔬 Analisis Makronutrien vs Kebutuhan Harian")
 
-    # ========== RIWAYAT KALORI ==========
+    karbo_aktual = sum([daftar_kandungan[m][0] for m in makanan_semua])
+    protein_aktual = sum([daftar_kandungan[m][1] for m in makanan_semua])
+    lemak_aktual = sum([daftar_kandungan[m][2] for m in makanan_semua])
 
-st.markdown('<div class="card">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📈 Riwayat Konsumsi Harian</div>', unsafe_allow_html=True)
+    st.subheader("📌 Target vs Terkonsumsi (gram)")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"- Karbohidrat: {karbo:.1f}")
+        st.write(f"- Protein: {protein:.1f}")
+        st.write(f"- Lemak: {lemak:.1f}")
+    with col2:
+        st.write(f"- Karbohidrat: {karbo_aktual:.1f}")
+        st.write(f"- Protein: {protein_aktual:.1f}")
+        st.write(f"- Lemak: {lemak_aktual:.1f}")
 
-lihat_riwayat = st.checkbox("👀 Tampilkan Riwayat Harian")
+    df_nut = pd.DataFrame({
+        "Jenis": ["Karbohidrat", "Protein", "Lemak"],
+        "Target": [karbo, protein, lemak],
+        "Aktual": [karbo_aktual, protein_aktual, lemak_aktual]
+    })
 
-if lihat_riwayat:
-    try:
-        df_riwayat = pd.read_csv("kalori_tracker.csv")
-        df_riwayat['tanggal'] = pd.to_datetime(df_riwayat['tanggal'], format='%Y-%m-%d')
-        df_riwayat['tanggal_str'] = df_riwayat['tanggal'].dt.strftime("%d-%m-%Y")
+    fig4, ax4 = plt.subplots()
+    x = range(len(df_nut))
+    width = 0.35
+    ax4.bar(x, df_nut["Target"], width=width, label="Target", color="skyblue")
+    ax4.bar([p + width for p in x], df_nut["Aktual"], width=width, label="Terkonsumsi", color="salmon")
+    ax4.set_xticks([p + width/2 for p in x])
+    ax4.set_xticklabels(df_nut["Jenis"])
+    ax4.set_ylabel("Jumlah (g)")
+    ax4.set_title("Perbandingan Nutrisi")
+    ax4.legend()
+    st.pyplot(fig4)
 
-        # Tampilkan tabel dengan format tanggal yang rapi
-        df_display = df_riwayat.copy()
-        df_display = df_display.drop(columns=["tanggal"])
-        df_display = df_display.rename(columns={"tanggal_str": "Tanggal"})
+    # SARAN
+    if karbo_aktual > karbo + 10:
+        st.warning("🍚 Karbohidrat tinggi. Kurangi nasi, mie, atau gula.")
+    elif karbo_aktual < karbo - 10:
+        st.info("🍚 Tambahkan karbo dari oat, ubi, roti gandum.")
 
-        st.dataframe(df_display)
+    if protein_aktual < protein - 5:
+        st.info("🥩 Tambahkan protein: tempe, tahu, ayam, telur.")
+    elif protein_aktual > protein + 10:
+        st.warning("🥩 Protein terlalu tinggi. Hati-hati beban ginjal.")
 
-        # Ambil 7 hari terakhir
-        df_filtered = df_riwayat.sort_values('tanggal', ascending=False).head(7).sort_values('tanggal')
-
-        st.subheader("📊 Grafik Kalori 7 Hari Terakhir")
-
-        fig, ax = plt.subplots()
-        ax.plot(df_filtered['tanggal'], df_filtered['kalori'], marker='o', linestyle='-', color='#e76f51')
-        ax.set_xlabel("Tanggal")
-        ax.set_ylabel("Kalori (kkal)")
-        ax.set_title("Perbandingan Kalori Harian")
-        ax.set_xticks(df_filtered['tanggal'])
-        ax.set_xticklabels(df_filtered['tanggal'].dt.strftime("%d-%m"), rotation=45)
-
-        st.pyplot(fig)
-
-        rata2 = df_filtered['kalori'].mean()
-        st.success(f"🔍 Rata-rata kalori kamu dalam 7 hari terakhir: **{rata2:.1f} kkal**")
-
-    except FileNotFoundError:
-        st.warning("🚫 Belum ada data konsumsi yang disimpan.")
+    if lemak_aktual > lemak + 5:
+        st.warning("🧈 Lemak tinggi. Kurangi gorengan & makanan berminyak.")
+    elif lemak_aktual < lemak - 5:
+        st.info("🧈 Lemak sehat dibutuhkan. Tambahkan alpukat, zaitun.")
