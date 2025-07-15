@@ -191,3 +191,31 @@ if lihat_riwayat:
 
     except FileNotFoundError:
         st.warning("❌ Belum ada data riwayat konsumsi disimpan.")
+    
+# ---------- ANALISIS KONSUMSI HARI INI ----------
+st.markdown("## 📋 Analisis Konsumsi Harian")
+
+# Analisis kelebihan/defisit kalori
+if kalori > 0:
+    if total_kalori > kalori + 200:
+        st.error("⚠️ Konsumsi kamu hari ini jauh di atas kebutuhan. Hati-hati, bisa berisiko kelebihan energi!")
+    elif total_kalori < kalori - 200:
+        st.warning("🔻 Konsumsi kamu hari ini di bawah kebutuhan. Bisa bikin tubuh lemas atau kekurangan energi.")
+    else:
+        st.success("✅ Konsumsi kalori kamu hari ini seimbang dengan kebutuhan tubuhmu!")
+
+# ---------- TOP 3 MAKANAN PENYUMBANG KALORI ----------
+makanan_semua = sarapan + siang + malam + snack
+
+kalori_makanan = {}
+for makanan in makanan_semua:
+    if makanan in kalori_makanan:
+        kalori_makanan[makanan] += daftar_makanan[makanan]
+    else:
+        kalori_makanan[makanan] = daftar_makanan[makanan]
+
+top3 = sorted(kalori_makanan.items(), key=lambda x: x[1], reverse=True)[:3]
+
+st.markdown("### 🍟 Top 3 Makanan Tertinggi Kalori Hari Ini:")
+for i, (makanan, kal) in enumerate(top3, start=1):
+    st.write(f"{i}. {makanan} - **{kal} kkal**")
