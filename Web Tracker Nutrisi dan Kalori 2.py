@@ -178,12 +178,17 @@ if lihat_riwayat:
 
         st.subheader("📊 Grafik Total Kalori per Hari")
         fig3, ax3 = plt.subplots()
-        ax3.plot(df_riwayat['tanggal'], df_riwayat['total_kalori'], marker='o', color='darkorange')
-        ax3.set_xlabel("Tanggal")
-        ax3.set_ylabel("Total Kalori (kkal)")
-        ax3.set_title("Perbandingan Kalori Harian")
-        plt.xticks(rotation=45)
-        st.pyplot(fig3)
+        
+# Ambil 7 hari terakhir aja, kalau datanya banyak
+df_filtered = df_riwayat.sort_values('tanggal', ascending=False).head(7).sort_values('tanggal')
+
+fig3, ax3 = plt.subplots()
+ax3.plot(df_filtered['tanggal'], df_filtered['total_kalori'], marker='o', color='darkorange')
+ax3.set_xlabel("Tanggal")
+ax3.set_ylabel("Total Kalori (kkal)")
+ax3.set_title("Perbandingan Kalori Harian")
+plt.xticks(rotation=45)
+st.pyplot(fig3)
 
         rata2 = df_riwayat['total_kalori'].mean()
         st.success(f"🔎 Rata-rata kalori harian kamu: **{rata2:.2f} kkal**")
