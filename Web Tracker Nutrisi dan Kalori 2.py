@@ -3,9 +3,11 @@ import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
 
-# ====== Konfigurasi Layout & Logo ======
-st.set_page_config(
-    st.markdown("""
+# ========== KONFIGURASI AWAL ==========
+st.set_page_config(page_title="Web Tracker Nutrisi dan Kalori", layout="centered")
+
+# ✅ TAMBAHIN CSS DI SINI
+st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
