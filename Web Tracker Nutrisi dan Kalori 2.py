@@ -298,3 +298,17 @@ elif halaman == "Analisis & Riwayat":
         st.warning("🧈 Lemak tinggi. Kurangi gorengan & makanan berminyak.")
     elif lemak_aktual < lemak - 5:
         st.info("🧈 Lemak sehat dibutuhkan. Tambahkan alpukat, zaitun.")
+        
+elif halaman == "Pendahuluan Nutrisi":
+    st.header("🧬 Pendahuluan Nutrisi dan Kalori")
+
+    st.write("""
+    Kalori adalah satuan energi yang didapat tubuh dari makanan. Dalam konteks kimia organik, kalori berkaitan erat dengan proses metabolisme senyawa karbon seperti karbohidrat, protein, dan lemak.
+
+    Setiap makronutrien memiliki peran berbeda:
+    - **Karbohidrat**: sumber energi utama
+    - **Protein**: penyusun sel dan jaringan
+    - **Lemak**: cadangan energi dan pelarut vitamin
+
+    Melalui pemantauan nutrisi, kamu bisa menyeimbangkan asupan dengan kebutuhan tubuh agar tetap sehat dan optimal.
+    """)
