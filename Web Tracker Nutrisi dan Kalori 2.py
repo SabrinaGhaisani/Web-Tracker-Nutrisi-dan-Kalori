@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # ========== KONFIGURASI AWAL ==========
 st.set_page_config(page_title="Web Tracker Nutrisi dan Kalori", layout="centered")
-st.image("logo_nutritrack.png", width=180)
+st.image("logo_nutritrack.png", width=360)
 
 if "show_nutrisi" not in st.session_state:
     st.session_state.show_nutrisi = False
