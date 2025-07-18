@@ -8,6 +8,11 @@ st.set_page_config(
     page_title="NutriTrack - Web Tracker Nutrisi & Kalori",
     layout="wide",
 )
+
+# Inisialisasi session state
+if "show_nutrisi" not in st.session_state:
+    st.session_state.show_nutrisi = False
+    
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
