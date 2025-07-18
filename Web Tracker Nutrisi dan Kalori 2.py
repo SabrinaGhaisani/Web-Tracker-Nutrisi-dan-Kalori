@@ -60,7 +60,7 @@ halaman = st.sidebar.radio(
 )
 
 if halaman == "Beranda":
-    st.image("logo_nutrack.png", width=180)  # atau langsung pake link
+    st.image("logo_nutritrack.png", width=180)  # atau langsung pake link
     st.title("NutriTrack")
     st.subheader("Aplikasi Tracker Nutrisi dan Kalori Harian")
 
