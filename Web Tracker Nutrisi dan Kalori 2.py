@@ -9,9 +9,14 @@ st.set_page_config(
     layout="wide",
 )
 
-# Inisialisasi session state
+# Inisialisasi Session State
 if "show_nutrisi" not in st.session_state:
     st.session_state.show_nutrisi = False
+if "show_konsumsi" not in st.session_state:
+    st.session_state.show_konsumsi = False
+if "show_riwayat" not in st.session_state:
+    st.session_state.show_riwayat = False
+
     
 st.markdown("""
     <style>
