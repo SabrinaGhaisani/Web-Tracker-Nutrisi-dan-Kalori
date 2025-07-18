@@ -3,102 +3,58 @@ import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
 
-# ====== Konfigurasi Layout & Logo ======
-st.set_page_config(
-    page_title="NutriTrack - Web Tracker Nutrisi & Kalori",
-    layout="wide",
-)
+# ========== KONFIGURASI AWAL ==========
+st.set_page_config(page_title="Web Tracker Nutrisi dan Kalori", layout="centered")
 
-# Inisialisasi Session State
 if "show_nutrisi" not in st.session_state:
     st.session_state.show_nutrisi = False
-if "show_konsumsi" not in st.session_state:
-    st.session_state.show_konsumsi = False
-if "show_riwayat" not in st.session_state:
-    st.session_state.show_riwayat = False
 
-    
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+# ========== DATABASE GIZI ==========
+daftar_makanan = {
+    "Nasi Putih (100g)": 175,
+    "Tempe Goreng": 120,
+    "Telur Rebus": 70,
+    "Ayam Panggang": 200,
+    "Susu Full Cream (250ml)": 150,
+    "Roti Tawar": 80,
+    "Pisang": 90,
+    "Sayur Bayam": 30,
+    "Gorengan": 180,
+    "Air Putih": 0,
+}
 
-    html, body, [class*="css"] {
-        font-family: 'Poppins', sans-serif;
-        background-color: #f7fff8;
-        color: #2e2e2e;
-    }
+daftar_kandungan = {
+    "Nasi Putih (100g)": [40, 3, 1],
+    "Tempe Goreng": [10, 8, 6],
+    "Telur Rebus": [1, 6, 5],
+    "Ayam Panggang": [0, 30, 7],
+    "Susu Full Cream (250ml)": [12, 8, 8],
+    "Roti Tawar": [15, 3, 1],
+    "Pisang": [22, 1, 0],
+    "Sayur Bayam": [3, 2, 0],
+    "Gorengan": [10, 2, 15],
+    "Air Putih": [0, 0, 0],
+}
 
-    .stButton>button {
-        background-color: #a8e6cf;
-        color: black;
-        font-weight: bold;
-        border-radius: 10px;
-        padding: 0.4em 1em;
-    }
+# ========== INPUT DATA DIRI ==========
+st.title("🍽️ Tracker Nutrisi dan Kalori")
+st.write("Web Tracker Kebutuhan Nutrisi dan Kalori Harianmu")
 
-    .stButton>button:hover {
-        background-color: #81c784;
-        color: white;
-    }
+st.header("📝 Input Data Diri")
 
-    .stSidebar {
-        background-color: #e5fce7;
-    }
-    </style>
-""", unsafe_allow_html=True)
+nama = st.text_input("Nama")
+gender = st.radio("Gender", ["Perempuan", "Laki-laki"])
+umur = st.number_input("Umur (tahun)", min_value=0)
+tinggi = st.number_input("Tinggi Badan (cm)", min_value=0.0)
+berat = st.number_input("Berat Badan (kg)", min_value=0.0)
+aktivitas = st.selectbox("Aktivitas Harian", ["Ringan (kerja duduk)", "Sedang (jalan kaki, berdiri)", "Berat (fisik/olahraga)"])
 
-# ====== Logo & Warna (custom style sederhana) ======
-st.markdown("""
-    <style>
-        body {
-            background-color: #f5fff5;
-        }
-        .sidebar .sidebar-content {
-            background-color: #e0f7e9;
-        }
-        h1, h2, h3, h4 {
-            color: #317256;
-        }
-    </style>
-""", unsafe_allow_html=True)
+if st.button("Lanjut ➡️"):
+    st.session_state.show_nutrisi = True
 
-# ========== SIDEBAR ==========
-st.sidebar.title("Navigasi")
-halaman = st.sidebar.radio(
-    "Pilih Halaman",
-    ("Beranda", "Pendahuluan Nutrisi", "Kalkulator Nutrisi", "Konsumsi Harian", "Analisis & Riwayat")
-)
-
-if halaman == "Beranda":
-    st.image("logo_nutritrack.png", width=180)  # atau langsung pake link
-    st.title("NutriTrack")
-    st.subheader("Aplikasi Tracker Nutrisi dan Kalori Harian")
-
-    st.write("""
-    NutriTrack adalah aplikasi web berbasis Streamlit untuk membantu kamu memantau kebutuhan kalori dan zat gizi harian.
-    Dengan tampilan simpel dan fitur interaktif, aplikasi ini cocok untuk semua kalangan—baik pelajar, mahasiswa, maupun masyarakat umum.
-    """)
-    st.success("Yuk mulai hidup sehat dari sekarang! Gunakan menu di sidebar untuk mulai.")
-
-elif halaman == "Kalkulator Nutrisi":
-   # ========== INPUT DATA DIRI ==========
-    st.title("🍽️ Tracker Nutrisi dan Kalori")
-    st.write("Web Tracker Kebutuhan Nutrisi dan Kalori Harianmu")
-    
-    st.header("📝 Input Data Diri")
-    nama = st.text_input("Nama")
-    gender = st.radio("Gender", ["Perempuan", "Laki-laki"])
-    umur = st.number_input("Umur (tahun)", min_value=0)
-    tinggi = st.number_input("Tinggi Badan (cm)", min_value=0.0)
-    berat = st.number_input("Berat Badan (kg)", min_value=0.0)
-    aktivitas = st.selectbox("Aktivitas Harian", ["Ringan (kerja duduk)", "Sedang (jalan kaki, berdiri)", "Berat (fisik/olahraga)"])
-    
-    if st.button("Lanjut ➡️"):
-        st.session_state.show_nutrisi = True
-
-    # ========== KALKULASI KEBUTUHAN ==========
-    if st.session_state.show_nutrisi:
-        st.header("📊 Kebutuhan Kalori & Nutrisi Harian")
+# ========== KALKULASI KEBUTUHAN ==========
+if st.session_state.show_nutrisi:
+    st.header("📊 Kebutuhan Kalori & Nutrisi Harian")
 
     if gender == "Perempuan":
         bmr = 447.6 + (9.25 * berat) + (3.1 * tinggi) - (4.33 * umur)
@@ -158,12 +114,8 @@ elif halaman == "Kalkulator Nutrisi":
     st.write("**Lemak Sehat:** alpukat, minyak zaitun, kacang")
     st.write("**Serat:** sayuran, buah tinggi serat")
     st.warning("Hindari makanan tinggi gula & sodium ➡️ mi instan, snack kemasan")
-    
-    if st.button("Lanjut ke Konsumsi Harian ➡️"):
-        st.session_state.show_konsumsi = True
 
-
-elif halaman == "Konsumsi Harian":
+    # ========== INPUT KONSUMSI ==========
     st.markdown("## 🧾 Input Konsumsi Harian")
     tanggal = st.date_input("Tanggal", value=datetime.date.today())
 
@@ -211,12 +163,8 @@ elif halaman == "Konsumsi Harian":
 
         df_baru.to_csv("kalori_tracker.csv", index=False)
         st.success("✅ Data disimpan ke `kalori_tracker.csv`")
-        
-        if st.button("Lihat Riwayat 🔁"):
-            st.session_state.show_riwayat = True
 
-
-elif halaman == "Analisis & Riwayat":
+    # ========== RINGKASAN ==========
     st.markdown("---")
     st.header("📈 Riwayat Kalori Harian")
 
@@ -316,17 +264,3 @@ elif halaman == "Analisis & Riwayat":
         st.warning("🧈 Lemak tinggi. Kurangi gorengan & makanan berminyak.")
     elif lemak_aktual < lemak - 5:
         st.info("🧈 Lemak sehat dibutuhkan. Tambahkan alpukat, zaitun.")
-        
-elif halaman == "Pendahuluan Nutrisi":
-    st.header("🧬 Pendahuluan Nutrisi dan Kalori")
-
-    st.write("""
-    Kalori adalah satuan energi yang didapat tubuh dari makanan. Dalam konteks kimia organik, kalori berkaitan erat dengan proses metabolisme senyawa karbon seperti karbohidrat, protein, dan lemak.
-
-    Setiap makronutrien memiliki peran berbeda:
-    - **Karbohidrat**: sumber energi utama
-    - **Protein**: penyusun sel dan jaringan
-    - **Lemak**: cadangan energi dan pelarut vitamin
-
-    Melalui pemantauan nutrisi, kamu bisa menyeimbangkan asupan dengan kebutuhan tubuh agar tetap sehat dan optimal.
-    """)
