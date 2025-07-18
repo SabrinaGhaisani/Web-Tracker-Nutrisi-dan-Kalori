@@ -88,7 +88,7 @@ elif halaman == "Kalkulator Nutrisi":
 
     # ========== KALKULASI KEBUTUHAN ==========
     if st.session_state.show_nutrisi:
-    st.header("📊 Kebutuhan Kalori & Nutrisi Harian")
+        st.header("📊 Kebutuhan Kalori & Nutrisi Harian")
 
     if gender == "Perempuan":
         bmr = 447.6 + (9.25 * berat) + (3.1 * tinggi) - (4.33 * umur)
