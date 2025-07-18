@@ -158,6 +158,10 @@ elif halaman == "Kalkulator Nutrisi":
     st.write("**Lemak Sehat:** alpukat, minyak zaitun, kacang")
     st.write("**Serat:** sayuran, buah tinggi serat")
     st.warning("Hindari makanan tinggi gula & sodium ➡️ mi instan, snack kemasan")
+    
+    if st.button("Lanjut ke Konsumsi Harian ➡️"):
+        st.session_state.show_konsumsi = True
+
 
 elif halaman == "Konsumsi Harian":
     st.markdown("## 🧾 Input Konsumsi Harian")
@@ -207,6 +211,10 @@ elif halaman == "Konsumsi Harian":
 
         df_baru.to_csv("kalori_tracker.csv", index=False)
         st.success("✅ Data disimpan ke `kalori_tracker.csv`")
+        
+        if st.button("Lihat Riwayat 🔁"):
+            st.session_state.show_riwayat = True
+
 
 elif halaman == "Analisis & Riwayat":
     st.markdown("---")
