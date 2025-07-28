@@ -37,21 +37,21 @@ daftar_kandungan = {
     "Air Putih": [0, 0, 0],
 }
 
-# ========== INPUT DATA DIRI ==========
+# ========== SIDEBAR INPUT ==========
+with st.sidebar:
+    st.header("📝 Data Diri")
+    nama = st.text_input("Nama")
+    gender = st.radio("Gender", ["Perempuan", "Laki-laki"])
+    umur = st.number_input("Umur (tahun)", min_value=0)
+    tinggi = st.number_input("Tinggi Badan (cm)", min_value=0.0)
+    berat = st.number_input("Berat Badan (kg)", min_value=0.0)
+    aktivitas = st.selectbox("Aktivitas Harian", ["Ringan (kerja duduk)", "Sedang (jalan kaki, berdiri)", "Berat (fisik/olahraga)"])
+    if st.button("Lanjut ➡️"):
+        st.session_state.show_nutrisi = True
+
+# ========== HEADER ==========
 st.title("🍽️ Tracker Nutrisi dan Kalori")
 st.write("Web Tracker Kebutuhan Nutrisi dan Kalori Harianmu")
-
-st.header("📝 Input Data Diri")
-
-nama = st.text_input("Nama")
-gender = st.radio("Gender", ["Perempuan", "Laki-laki"])
-umur = st.number_input("Umur (tahun)", min_value=0)
-tinggi = st.number_input("Tinggi Badan (cm)", min_value=0.0)
-berat = st.number_input("Berat Badan (kg)", min_value=0.0)
-aktivitas = st.selectbox("Aktivitas Harian", ["Ringan (kerja duduk)", "Sedang (jalan kaki, berdiri)", "Berat (fisik/olahraga)"])
-
-if st.button("Lanjut ➡️"):
-    st.session_state.show_nutrisi = True
 
 # ========== KALKULASI KEBUTUHAN ==========
 if st.session_state.show_nutrisi:
